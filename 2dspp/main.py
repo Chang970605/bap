@@ -1,0 +1,30 @@
+import gurobipy as gb
+
+try:
+
+    # Create a new model
+    m = gb.Model("mip1")
+
+    # Create variables
+    x = m.addVar(vtype = gb.GRB.BINARY, name="x")
+    y = m.addVar(vtype = gb.GRB.BINARY, name="y")
+    z = m.addVar(vtype = gb.GRB.BINARY, name="z")
+
+    # Set objective
+    m.setObjective(x + y + 2 * z, gb.GRB.MINIMIZE)
+
+    # Add constraint: x + 2 y + 3 z <= 4
+    m.addConstr(x + 2 * y + 3 * z <= 4, "c0")
+
+    # Add constraint: x + y >= 1
+    m.addConstr(x + y >= 1, "c1")
+
+    m.optimize()
+
+    for v in m.getVars():
+        print(v.varName, v.x)
+
+    print('Obj:', m.objVal)
+
+except gb.GurobiError:
+    print('Error reported')
