@@ -10,7 +10,7 @@ try:
     N = 3      # 箱子数目
     W = 10     # 容器宽
     M = 100000 # 很大的数
-    alpha = 0  # 惩罚系数
+    alpha = 1  # 惩罚系数
     w = {}     # 箱子宽
     h = {}     # 箱子高
     p = {}     # 箱子偏好位置
@@ -27,18 +27,22 @@ try:
     d = m.addVars(interactive_item_list, vtype= GRB.BINARY, name = "d")
     l = m.addVars(interactive_item_list, vtype= GRB.BINARY, name = "l")
     x = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "x")
-    y = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "y")      #左上角坐标
+    y = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "y")      
     h_max = m.addVar(vtype = GRB.CONTINUOUS, name = "h_max")
-    px = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "px")
-    # 带有广义约束的决策变量
-    m.addGenConstrMax(h_max, [y[i] for i in item_list], name = "max_height")
-    m.addGenConstrAbs(px[1], x[1] - p[1], "px1")
-    # Set objective
+    px = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "px")  # 算上偏移的x px = x - p
+    yh = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "yh")   # 算上高度的y yh = y + h
+    pxf = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "pxf")
     
+    # 带有广义约束的决策变量
+    m.addGenConstrMax(h_max, [yh[i] for i in item_list], name = "max_height")
+    for i in item_list:
+        m.addGenConstrAbs(pxf[i], px[i], "abspx" + str(i))
+    
+    # Set objective
+    m.setObjective(h_max + alpha * sum(pxf[i] for i in item_list), GRB.MINIMIZE)
 
     # Add constraint: x + 2 y + 3 z <= 4
     
-    # Add constraint: x + y >= 1
     
     
     m.update()
