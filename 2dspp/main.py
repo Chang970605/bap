@@ -69,7 +69,7 @@ def gb_solver(variables_dict):
         
         # m.update()
         # m.write('ssp.lp')
-        
+        # m.setParam("MIPGap", 1)
         # 开始优化
         m.optimize()
         result =  {}  #保存结果
@@ -78,6 +78,11 @@ def gb_solver(variables_dict):
 
         result['Obj'] = m.objVal
         result['Runtime'] = m.Runtime
+        
+        pcount = 0
+        for i in range(1, N + 1):
+            pcount += abs(result['x[' + str(i) + ']'] - p[i])
+        result['pcount'] = pcount
         return result
 
     except GurobiError as e:
@@ -90,16 +95,36 @@ if __name__ == "__main__":
     w = {}     # 箱子宽
     h = {}     # 箱子高
     p = {}     # 箱子偏好位置
-    for i in range(1, 3 + 1):
-        w[i] = 2
-        h[i] = 4
-        p[i] = 1 
+    w[1], h[1] = 2, 12
+    w[2], h[2] = 7, 12
+    w[3], h[3] = 8, 6
+    w[4], h[4] = 3, 6
+    w[5], h[5] = 3, 5
+    w[6], h[6] = 5, 5
+    w[7], h[7] = 3, 12
+    w[8], h[8] = 3, 7
+    '''
+    w[9], h[9] = 5, 7
+    w[10], h[10] = 2, 6
+    
+    w[11], h[11] = 3, 2
+    w[12], h[12] = 4, 2
+    w[13], h[13] = 3, 4
+    w[14], h[14] = 4, 4
+    w[15], h[15] = 9, 2 
+    w[16], h[16] = 11, 2
+    '''
+    for i in range(1, 9):
+        p[i] = 1
     variables = {}
-    variables['N'] = 3
-    variables['W'] = 10
+    variables['N'] = 8
+    variables['W'] = 20
     variables['w'] = w
     variables['h'] = h
     variables['p'] = p
-    variables['alpha'] = 0
-    result = gb_solver(variables)
-    print(result)
+    res = []
+    for i in range(0, 11):     
+        variables['alpha'] = i
+        result = gb_solver(variables)
+        res.append(result['pcount'])
+    print(res)
