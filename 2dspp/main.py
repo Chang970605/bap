@@ -1,4 +1,5 @@
 from gurobipy import *
+import matplotlib.pyplot as plt
 
 def gb_solver(variables_dict):
     """
@@ -14,12 +15,11 @@ def gb_solver(variables_dict):
     try:
         # Create a new model
         m = Model("sspwp")
-
         # Create variables
         # 参数
         N = variables_dict['N']      # 箱子数目
         W = variables_dict['W']     # 容器宽
-        M = 100000 # 很大的数
+        M = 1000 # 很大的数
         alpha = variables_dict['alpha']  # 惩罚系数
         w = variables_dict['w']     # 箱子宽
         h = variables_dict['h']     # 箱子高
@@ -91,6 +91,44 @@ def gb_solver(variables_dict):
     except AttributeError:
         print('Encountered an attribute error')
 
+def sketch_map(W, w, h, x, y, p, name):
+    """
+    画结果示意图
+    W: 容器的宽度
+    w: 数组，为每个箱子的宽度
+    h: 数组，为每个箱子的高度
+    p: 数组，为每个箱子的偏好位置
+    x: 数组，为每个箱子左下角x坐标
+    y: 数组，为每个箱子左下角y坐标
+    name: str，图片保存名字
+    """
+    # 先确定x,y轴范围
+    y_label_range = 1.6 * max([i + j for i, j in zip(y, h)])
+    x_label_range = W
+    
+    # 开始做图
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    #建立矩形
+    for i in range(len(w)):
+        rect = plt.Rectangle(
+                (x[i], y[i]),  # (x,y)矩形左下角
+                w[i],          # width长
+                h[i],          # height宽
+                color='maroon', 
+                alpha=0.5)
+        ax.add_patch(rect)
+        ax.text(x[i] + (w[i] / 2), y[i] + (h[i] / 2),
+                '{:s} {:.3f}'.format('sss', 11),
+                bbox=dict(facecolor='blue', alpha=0.5),
+                fontsize=14, color='white')
+    # 建立图
+    plt.xlim(0, x_label_range)
+    plt.ylim(0, y_label_range)
+    plt.show()
+    plt.savefig(name + ".png")
+
 if __name__ == "__main__":
     w = {}     # 箱子宽
     h = {}     # 箱子高
@@ -103,10 +141,9 @@ if __name__ == "__main__":
     w[6], h[6] = 5, 5
     w[7], h[7] = 3, 12
     w[8], h[8] = 3, 7
-    '''
     w[9], h[9] = 5, 7
+    '''
     w[10], h[10] = 2, 6
-    
     w[11], h[11] = 3, 2
     w[12], h[12] = 4, 2
     w[13], h[13] = 3, 4
@@ -114,17 +151,23 @@ if __name__ == "__main__":
     w[15], h[15] = 9, 2 
     w[16], h[16] = 11, 2
     '''
-    for i in range(1, 9):
+    for i in range(1, 10):
         p[i] = 1
     variables = {}
-    variables['N'] = 8
+    variables['N'] = 9
     variables['W'] = 20
     variables['w'] = w
     variables['h'] = h
     variables['p'] = p
     res = []
-    for i in range(0, 11):     
+    i = 0
+    variables['alpha'] = i
+    result = gb_solver(variables)
+    '''
+    while i <= 6:     
         variables['alpha'] = i
         result = gb_solver(variables)
         res.append(result['pcount'])
-    print(res)
+        i += 0.1
+    '''
+    print(result)
