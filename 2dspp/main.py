@@ -1,5 +1,6 @@
 from gurobipy import *
 import matplotlib.pyplot as plt
+import random
 
 def gb_solver(variables_dict):
     """
@@ -45,7 +46,7 @@ def gb_solver(variables_dict):
             m.addGenConstrAbs(pxf[i], px[i], "abspx" + str(i))
         
         # Set objective
-        m.setObjective(h_max + alpha * sum(pxf[i] for i in item_list), GRB.MINIMIZE)
+        m.setObjective(h_max, GRB.MINIMIZE)  # alpha * (sum(pxf[i] for i in item_list)
 
         # Add constraint:
         for i,j in interactive_item_list:
@@ -67,8 +68,8 @@ def gb_solver(variables_dict):
             m.addConstr(px[i] == x[i] - p[i], "px0" + str(i))
             m.addConstr(yh[i] == y[i] + h[i], "x0" + str(i))
         
-        # m.update()
-        # m.write('ssp.lp')
+        m.update()
+        m.write('ssp.lp')
         # m.setParam("MIPGap", 1)
         # 开始优化
         m.optimize()
@@ -133,17 +134,17 @@ if __name__ == "__main__":
     w = {}     # 箱子宽
     h = {}     # 箱子高
     p = {}     # 箱子偏好位置
-    w[1], h[1] = 2, 12
-    w[2], h[2] = 7, 12
-    w[3], h[3] = 8, 6
+    w[1], h[1] = 2, 5
+    w[2], h[2] = 3, 5
+    w[3], h[3] = 3, 6
     w[4], h[4] = 3, 6
-    w[5], h[5] = 3, 5
-    w[6], h[6] = 5, 5
-    w[7], h[7] = 3, 12
-    w[8], h[8] = 3, 7
-    w[9], h[9] = 5, 7
+    w[5], h[5] = 3, 7
+    w[6], h[6] = 5, 7
+    w[7], h[7] = 5, 12
+    w[8], h[8] = 7, 12
+    w[9], h[9] = 8, 12
+    w[10], h[10] = 9, 14
     '''
-    w[10], h[10] = 2, 6
     w[11], h[11] = 3, 2
     w[12], h[12] = 4, 2
     w[13], h[13] = 3, 4
@@ -151,23 +152,47 @@ if __name__ == "__main__":
     w[15], h[15] = 9, 2 
     w[16], h[16] = 11, 2
     '''
-    for i in range(1, 10):
-        p[i] = 1
+    
     variables = {}
-    variables['N'] = 9
+    variables['N'] = 10
     variables['W'] = 20
     variables['w'] = w
     variables['h'] = h
+    
+    
+    
+    # ans = {}
+    # p_ans = {}
+    for j in range(1, 11):
+        p[j] = random.randint(0, 20 - w[j])
+    variables['alpha'] = 0.0
     variables['p'] = p
-    res = []
-    i = 0
-    variables['alpha'] = i
     result = gb_solver(variables)
-    '''
-    while i <= 6:     
-        variables['alpha'] = i
-        result = gb_solver(variables)
-        res.append(result['pcount'])
-        i += 0.1
-    '''
     print(result)
+    '''
+    for k in range(10):
+        res = []
+        variables['p'] = p
+        i = 0
+        while i <= 6:
+            print('-------------------------------------------------开始' + 'i')    
+            variables['alpha'] = i
+            result = gb_solver(variables)
+            res.append(result['pcount'])
+            i += 0.1
+        ans[k] = res
+        pp = p.copy()
+        p_ans[k] = pp
+    with open('exp1_1.txt', 'w') as f:
+        for key, value in ans.items():
+            f.write(str(key))
+            f.write(': ')
+            f.write(str(value))
+            f.write('\n')
+    with open('exp1_2.txt', 'w') as f:
+        for key, value in p_ans.items():
+            f.write(str(key))
+            f.write(': ')
+            f.write(str(value))
+            f.write('\n')
+    '''
