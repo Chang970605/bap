@@ -167,10 +167,11 @@ if __name__ == "__main__":
         p[j] = random.randint(0, 20 - w[j])
     variables['alpha'] = 0
     variables['p'] = p
-    result = gb_solver(variables)
-    print(result)
-    '''
-    for k in range(10):
+    # result = gb_solver(variables)
+    # print(result)
+    ans = {}
+    p_ans = {}
+    for k in range(1):
         res = []
         variables['p'] = p
         i = 0
@@ -183,6 +184,8 @@ if __name__ == "__main__":
         ans[k] = res
         pp = p.copy()
         p_ans[k] = pp
+    print(ans)
+    '''
     with open('exp1_1.txt', 'w') as f:
         for key, value in ans.items():
             f.write(str(key))
