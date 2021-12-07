@@ -33,12 +33,12 @@ def gb_solver(variables_dict):
         # 决策变量
         d = m.addVars(interactive_item_list, vtype= GRB.BINARY, name = "d")
         l = m.addVars(interactive_item_list, vtype= GRB.BINARY, name = "l")
-        x = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "x")
-        y = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "y")      
-        h_max = m.addVar(vtype = GRB.CONTINUOUS, name = "h_max")
-        px = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "px")  # 算上偏移的x px = x - p 后面要加入约束
-        yh = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "yh")   # 算上高度的y yh = y + h 后面要加入约束
-        pxf = m.addVars(item_list, vtype= GRB.CONTINUOUS, name = "pxf") # 带绝对值的px
+        x = m.addVars(item_list, vtype= GRB.INTEGER, name = "x")
+        y = m.addVars(item_list, vtype= GRB.INTEGER, name = "y")      
+        h_max = m.addVar(vtype = GRB.INTEGER, name = "h_max")
+        px = m.addVars(item_list, lb = -500, vtype= GRB.INTEGER, name = "px")  # 算上偏移的x px = x - p 后面要加入约束
+        yh = m.addVars(item_list, vtype= GRB.INTEGER, name = "yh")   # 算上高度的y yh = y + h 后面要加入约束
+        pxf = m.addVars(item_list, vtype= GRB.INTEGER, name = "pxf") # 带绝对值的px
         
         # 带有广义约束的决策变量
         m.addGenConstrMax(h_max, [yh[i] for i in item_list], name = "max_height")
@@ -46,8 +46,8 @@ def gb_solver(variables_dict):
             m.addGenConstrAbs(pxf[i], px[i], "abspx" + str(i))
         
         # Set objective
-        m.setObjective(h_max, GRB.MINIMIZE)  # alpha * (sum(pxf[i] for i in item_list)
-
+        m.setObjective(h_max + alpha * sum(pxf[i] for i in item_list), GRB.MINIMIZE)  # alpha * (sum(pxf[i] for i in item_list)
+        # pxf = abs(x[i] - p[i])
         # Add constraint:
         for i,j in interactive_item_list:
             m.addConstr(y[i] - y[j] + h[i] <= (1 - d[i, j]) * M, "c0" + str(i) + str(j))
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     # p_ans = {}
     for j in range(1, 11):
         p[j] = random.randint(0, 20 - w[j])
-    variables['alpha'] = 0.0
+    variables['alpha'] = 0
     variables['p'] = p
     result = gb_solver(variables)
     print(result)
