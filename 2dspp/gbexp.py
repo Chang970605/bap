@@ -176,7 +176,7 @@ if __name__ == "__main__":
         variables['p'] = p
         i = 0
         while i <= 6:
-            print('-------------------------------------------------开始' + 'i')    
+            print('-------------------------------------------------开始' + str(i))    
             variables['alpha'] = i
             result = gb_solver(variables)
             res.append(result['pcount'])
