@@ -68,6 +68,7 @@ def gb_solver(variables_dict):
             m.addConstr(px[i] == x[i] - p[i], "px0" + str(i))
             m.addConstr(yh[i] == y[i] + h[i], "x0" + str(i))
         
+        m.Params.TimeLimit = 10
         m.update()
         m.write('ssp.lp')
         # m.setParam("MIPGap", 1)

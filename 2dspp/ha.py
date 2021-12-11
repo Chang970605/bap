@@ -34,6 +34,73 @@ def ffd(w, h, W, p):
             ans.append(tmp_ans)
     return ans
         
+def ffdtwo(w, h, W, p):
+    """
+    策略2
+    直接摆在距离偏好位置最近的边缘点
+    w:list of width
+    h:list of height
+    W:width
+    p:偏好位置
+    """
+    n = len(w)    # 箱子总数
+    ans = [[0, 0, 0, 0, 0]]      # 保存[[xi,yi,wi,hi],...]    需要排好序,以yi排序升序
+    for i in range(n):
+        # 开始安排第i个箱子
+        tmp_h = h[i]
+        tmp_w = w[i]
+        tmp_p = p[i]
+        tmp_intervals, tmp_y= find_position(ans,tmp_w,tmp_h,W)
+        # tmp_intervals为可用的区间，下面决定三种不同的策略
+        # 考虑放在最近的边缘点
+        tmp_x = tmp_intervals[0][0]
+        for j in tmp_intervals:
+            # if p[i] >= j[0] and p[i] <= j[1]:
+            #     tmp_x = p[i]
+            #     break
+            if abs(tmp_x - p[i]) > abs(j[0] - p[i]):
+                tmp_x = j[0]
+            elif abs(tmp_x - p[i]) > abs(j[1] - p[i]):
+                tmp_x = j[1]
+        tmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p]
+        for k in range(len(ans)):
+            if ans[k][1] + ans[k][3] > tmp_y + tmp_h:
+                ans = ans[:k] + [tmp_ans] + ans[k:]
+                break
+        if len(ans) != i + 2:
+            ans.append(tmp_ans)
+    return ans
+
+def ffdthree(w, h, W, p):
+    """
+    策略3
+    直接摆在距离偏好位置最近的最边缘点
+    w:list of width
+    h:list of height
+    W:width
+    p:偏好位置
+    """
+    n = len(w)    # 箱子总数
+    ans = [[0, 0, 0, 0, 0]]      # 保存[[xi,yi,wi,hi],...]    需要排好序,以yi排序升序
+    for i in range(n):
+        # 开始安排第i个箱子
+        tmp_h = h[i]
+        tmp_w = w[i]
+        tmp_p = p[i]
+        tmp_intervals, tmp_y= find_position(ans,tmp_w,tmp_h,W)
+        # tmp_intervals为可用的区间，下面决定三种不同的策略
+        # 考虑放在最近的边缘点
+        tmp_x = tmp_intervals[0][0]
+        if abs(tmp_intervals[0][0] - p[i]) >= abs(tmp_intervals[-1][1] - p[i]):
+            tmp_x = tmp_intervals[-1][1]
+        tmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p]
+        for k in range(len(ans)):
+            if ans[k][1] + ans[k][3] > tmp_y + tmp_h:
+                ans = ans[:k] + [tmp_ans] + ans[k:]
+                break
+        if len(ans) != i + 2:
+            ans.append(tmp_ans)
+    return ans
 
 def find_position(p, w, h, W):
     '''
