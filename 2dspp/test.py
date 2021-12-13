@@ -8,7 +8,7 @@ import time
 # h = 3
 # W = 1
 # print(ha.find_position(p,w,h,W))
-beixuan = [0.1 * i for i in range(1,31)]
+beixuan = [0,0.1,0.2,0,3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3]
 compare_resultone = {}
 compare_resultotwo = {}
 compare_resultothree = {}
@@ -16,8 +16,15 @@ for i in beixuan:
     compare_resultone[i] = 0
     compare_resultotwo[i] = 0
     compare_resultothree[i] = 0
-
-for kk in range(10):
+tmp_one = 0
+tmp_two = 0
+tmp_three = 0
+tmp_four = 0
+tmp_onee = 0
+tmp_twoe = 0
+tmp_threee = 0
+tmp_foure = 0
+for kk in range(1):
     w = {}     # 箱子宽
     h = {}     # 箱子高
     p = {}     # 箱子偏好位置
@@ -33,19 +40,19 @@ for kk in range(10):
     w[9], h[9] = 8, 12
     w[10], h[10] = 9, 14
     '''
-    n = 12
+    n = 20
     ww = []
     hh = []
     for _ in range(n):
-        ww.append(random.randint(0, 15))
-        hh.append(random.randint(0, 20))
+        ww.append(random.randint(5, 15))
+        hh.append(random.randint(30, 70))
     ww.sort()
     hh.sort()
     ww = ww[::-1]
     hh = hh[::-1]
     # ww = list(w.values())[::-1]
     # hh = list(h.values())[::-1]
-    for j in range(1, 13):
+    for j in range(1, n + 1):
         p[j] = random.randint(0, 20 - ww[j - 1])
         w[j] = ww[j - 1]
         h[j] = hh[j - 1]
@@ -61,6 +68,20 @@ for kk in range(10):
     he_result = ha.ffd(ww, hh, 20, pp)
     he_resulttwo = ha.ffdtwo(ww, hh, 20, pp)
     he_resultthree = ha.ffdthree(ww, hh, 20, pp)
+    he_resultfour = ha.ffd_beamsearch(ww, hh, 20, pp)
+    # print(he_result)
+    # print(he_resulttwo)
+    for i in range(len(he_result)):
+        tmp_one += abs(he_result[i][0] - he_result[i][4])
+        tmp_two += abs(he_resulttwo[i][0] - he_resulttwo[i][4])
+        tmp_three += abs(he_resultthree[i][0] - he_resultthree[i][4])
+        tmp_four += abs(he_resultfour[i][0] - he_resultfour[i][4])
+    tmp_onee += he_result[-1][1] + he_result[-1][3]
+    tmp_twoe += he_resulttwo[-1][1] + he_resulttwo[-1][3]
+    tmp_threee += he_resultthree[-1][1] + he_resultthree[-1][3]
+    tmp_foure += he_resultfour[-1][1] + he_resultfour[-1][3] 
+    
+    '''
     for al in beixuan:
         variables['alpha'] = al
         he_objone = 0
@@ -75,10 +96,14 @@ for kk in range(10):
         for i in he_resultthree:
             he_objthree += al * (abs(i[0] - i[4]))
         he_objthree += (he_resultthree[-1][1] + he_resultthree[-1][3])
-        gb_result = gbexp.gb_solver(variables)
-        compare_resultone[al] += ((he_objone - gb_result['Obj'])/gb_result['Obj'])
-        compare_resultotwo[al] += ((he_objtwo - gb_result['Obj'])/gb_result['Obj'])
-        compare_resultothree[al] += ((he_objthree - gb_result['Obj'])/gb_result['Obj'])
+        # gb_result = gbexp.gb_solver(variables)
+        tmp_result = min(he_objone, he_objtwo, he_objthree)
+        if tmp_result == he_objone:
+            compare_resultone[al] += 1
+        elif tmp_result == he_objtwo:
+            compare_resultotwo[al] += 1
+        else:
+            compare_resultothree[al] += 1
         
     #he_end = time.time()
     
@@ -92,10 +117,23 @@ for kk in range(10):
     #print(gb_result['Runtime'])
     #compare_result.append([he_obj, gb_result['Obj']])
     #compare_time.append([he_time, gb_result['Runtime']])
-for i in beixuan:
-    compare_resultone[i] /= 10
-    compare_resultotwo[i] /= 10
-    compare_resultothree[i] /= 10
-print(compare_resultone)
-print(compare_resultotwo)
-print(compare_resultothree)
+    '''
+#for i in beixuan:
+#    compare_resultone[i] /= 10
+#    compare_resultotwo[i] /= 10
+#    compare_resultothree[i] /= 10
+#print(compare_resultone)
+#print(compare_resultotwo)
+#print(compare_resultothree)
+print(tmp_one)
+print(tmp_two)
+print(tmp_three)
+print(tmp_four)
+print(tmp_onee)
+print(tmp_twoe)
+print(tmp_threee)
+print(tmp_foure)
+print(he_result)
+print(he_resulttwo)
+print(he_resultthree)
+print(he_resultfour)

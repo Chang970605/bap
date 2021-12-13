@@ -102,6 +102,73 @@ def ffdthree(w, h, W, p):
             ans.append(tmp_ans)
     return ans
 
+def ffd_beamsearch(w, h, W, p):
+    """
+    带有beam_search版本的启发式算法，从三个里面选？
+    w:list of width
+    h:list of height
+    W:width
+    p:偏好位置
+    """
+    n = len(w)    # 箱子总数
+    # beam_ans = []
+    ans = [[0, 0, 0, 0, 0, 0]]      # 保存[[xi,yi,wi,hi],...]    需要排好序,以yi排序升序 第一个最后一位保存一个打分函数
+    beam_ans = [ans]
+    for i in range(n):
+        # 开始安排第i个箱子
+        tmp_h = h[i]
+        tmp_w = w[i]
+        tmp_p = p[i]
+        tmp_beam_ans = []
+        for tmp_ans in beam_ans:
+            # 除了改变tmp_ans，还需要新加几个
+            tmp_intervals, tmp_y= find_position(tmp_ans,tmp_w,tmp_h,W)
+            # tmp_intervals为可用的区间，下面决定三种不同的策略
+            # 先考虑放在最近的点
+            tmp_xx = set()  #将tmp_x保存在这里面
+            tmp_x = tmp_intervals[0][0]
+            for j in tmp_intervals:
+                if p[i] >= j[0] and p[i] <= j[1]:
+                    tmp_x = p[i]
+                    break
+                elif abs(tmp_x - p[i]) > abs(j[0] - p[i]):
+                    tmp_x = j[0]
+                elif abs(tmp_x - p[i]) > abs(j[1] - p[i]):
+                    tmp_x = j[1]
+            tmp_xx.add(tmp_x)
+            # 第二种
+            tmp_x = tmp_intervals[0][0]
+            for j in tmp_intervals:
+            # if p[i] >= j[0] and p[i] <= j[1]:
+            #     tmp_x = p[i]
+            #     break
+                if abs(tmp_x - p[i]) > abs(j[0] - p[i]):
+                    tmp_x = j[0]
+                elif abs(tmp_x - p[i]) > abs(j[1] - p[i]):
+                    tmp_x = j[1]
+            tmp_xx.add(tmp_x)
+            # 第三种
+            tmp_x = tmp_intervals[0][0]
+            if abs(tmp_intervals[0][0] - p[i]) >= abs(tmp_intervals[-1][1] - p[i]):
+                tmp_x = tmp_intervals[-1][1]
+            tmp_xx.add(tmp_x)
+            # 此时tmp_xx中保存的是可能的x坐标
+            for tmp_x in tmp_xx:
+                # 对三种分别进行添加
+                ttmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p]
+                for k in range(len(tmp_ans)):
+                    if tmp_ans[k][1] + tmp_ans[k][3] > tmp_y + tmp_h:
+                        tmp_ans = tmp_ans[:k] + [ttmp_ans] + tmp_ans[k:]
+                        break
+                if len(ans) != i + 2:
+                    tmp_ans.append(ttmp_ans)
+                tmp_ans[0][5] += abs(tmp_x - tmp_p)
+                tmp_beam_ans.append(tmp_ans)
+        # tmp_beam_ans中取出前k个
+        tmp_beam_ans.sort(key = lambda x : x[0][-1] + x[-1][1] + x[-1][3])
+        beam_ans = tmp_beam_ans[:3]
+    return beam_ans[0]
+
 def find_position(p, w, h, W):
     '''
     从已经存放好的箱子中找出可存放的位置
