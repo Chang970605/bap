@@ -1,3 +1,5 @@
+import copy
+
 def ffd(w, h, W, p):
     """
     直接摆在距离偏好位置最近的点
@@ -102,7 +104,7 @@ def ffdthree(w, h, W, p):
             ans.append(tmp_ans)
     return ans
 
-def ffd_beamsearch(w, h, W, p):
+def ffd_beamsearch(w, h, W, p, alpha):
     """
     带有beam_search版本的启发式算法，从三个里面选？
     w:list of width
@@ -156,17 +158,18 @@ def ffd_beamsearch(w, h, W, p):
             for tmp_x in tmp_xx:
                 # 对三种分别进行添加
                 ttmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p]
-                for k in range(len(tmp_ans)):
-                    if tmp_ans[k][1] + tmp_ans[k][3] > tmp_y + tmp_h:
-                        tmp_ans = tmp_ans[:k] + [ttmp_ans] + tmp_ans[k:]
+                tmpppp_ans = copy.deepcopy(tmp_ans)
+                for k in range(len(tmpppp_ans)):
+                    if tmpppp_ans[k][1] + tmpppp_ans[k][3] > tmp_y + tmp_h:
+                        tmpppp_ans = tmpppp_ans[:k] + [ttmp_ans] + tmpppp_ans[k:]
                         break
-                if len(ans) != i + 2:
-                    tmp_ans.append(ttmp_ans)
-                tmp_ans[0][5] += abs(tmp_x - tmp_p)
-                tmp_beam_ans.append(tmp_ans)
-        # tmp_beam_ans中取出前k个
-        tmp_beam_ans.sort(key = lambda x : x[0][-1] + x[-1][1] + x[-1][3])
-        beam_ans = tmp_beam_ans[:3]
+                if len(tmpppp_ans) != i + 2:
+                    tmpppp_ans.append(ttmp_ans)
+                tmpppp_ans[0][5] += abs(tmp_x - tmp_p)
+                tmp_beam_ans.append(tmpppp_ans)
+        # tmp_beam_ans中取出前k个s
+        tmp_beam_ans.sort(key = lambda x : alpha * x[0][-1] + x[-1][1] + x[-1][3])
+        beam_ans = tmp_beam_ans[:10]
     return beam_ans[0]
 
 def find_position(p, w, h, W):

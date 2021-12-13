@@ -8,23 +8,17 @@ import time
 # h = 3
 # W = 1
 # print(ha.find_position(p,w,h,W))
-beixuan = [0,0.1,0.2,0,3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3]
+beixuan = [0,0.1,0.2,0,3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4,4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,5]
 compare_resultone = {}
 compare_resultotwo = {}
 compare_resultothree = {}
+comapre_resultofour = {}
 for i in beixuan:
     compare_resultone[i] = 0
     compare_resultotwo[i] = 0
     compare_resultothree[i] = 0
-tmp_one = 0
-tmp_two = 0
-tmp_three = 0
-tmp_four = 0
-tmp_onee = 0
-tmp_twoe = 0
-tmp_threee = 0
-tmp_foure = 0
-for kk in range(1):
+    comapre_resultofour[i] = 0
+for kk in range(1000):
     w = {}     # 箱子宽
     h = {}     # 箱子高
     p = {}     # 箱子偏好位置
@@ -68,19 +62,34 @@ for kk in range(1):
     he_result = ha.ffd(ww, hh, 20, pp)
     he_resulttwo = ha.ffdtwo(ww, hh, 20, pp)
     he_resultthree = ha.ffdthree(ww, hh, 20, pp)
-    he_resultfour = ha.ffd_beamsearch(ww, hh, 20, pp)
+    
     # print(he_result)
     # print(he_resulttwo)
-    for i in range(len(he_result)):
-        tmp_one += abs(he_result[i][0] - he_result[i][4])
-        tmp_two += abs(he_resulttwo[i][0] - he_resulttwo[i][4])
-        tmp_three += abs(he_resultthree[i][0] - he_resultthree[i][4])
-        tmp_four += abs(he_resultfour[i][0] - he_resultfour[i][4])
-    tmp_onee += he_result[-1][1] + he_result[-1][3]
-    tmp_twoe += he_resulttwo[-1][1] + he_resulttwo[-1][3]
-    tmp_threee += he_resultthree[-1][1] + he_resultthree[-1][3]
-    tmp_foure += he_resultfour[-1][1] + he_resultfour[-1][3] 
-    
+    for alp in beixuan:
+        he_resultfour = ha.ffd_beamsearch(ww, hh, 20, pp, alp)
+        tmp_one = 0
+        tmp_two = 0
+        tmp_three = 0
+        tmp_four = 0
+        for i in range(len(he_result)):
+            tmp_one += alp * abs(he_result[i][0] - he_result[i][4])
+            tmp_two += alp * abs(he_resulttwo[i][0] - he_resulttwo[i][4])
+            tmp_three += alp * abs(he_resultthree[i][0] - he_resultthree[i][4])
+            tmp_four += alp * abs(he_resultfour[i][0] - he_resultfour[i][4])
+        
+        tmp_one += he_result[-1][1] + he_result[-1][3]
+        tmp_two += he_resulttwo[-1][1] + he_resulttwo[-1][3]
+        tmp_three += he_resultthree[-1][1] + he_resultthree[-1][3]
+        tmp_four += he_resultfour[-1][1] + he_resultfour[-1][3] 
+        tmpppp = min(tmp_one, tmp_two, tmp_three, tmp_four)
+        if tmp_one == tmpppp:
+            compare_resultone[alp] += 1
+        if tmp_three == tmpppp:
+            compare_resultothree[alp] += 1
+        if tmp_two == tmpppp:
+            compare_resultotwo[alp] += 1
+        if tmp_four == tmpppp:
+            comapre_resultofour[alp] += 1
     '''
     for al in beixuan:
         variables['alpha'] = al
@@ -122,18 +131,7 @@ for kk in range(1):
 #    compare_resultone[i] /= 10
 #    compare_resultotwo[i] /= 10
 #    compare_resultothree[i] /= 10
-#print(compare_resultone)
-#print(compare_resultotwo)
-#print(compare_resultothree)
-print(tmp_one)
-print(tmp_two)
-print(tmp_three)
-print(tmp_four)
-print(tmp_onee)
-print(tmp_twoe)
-print(tmp_threee)
-print(tmp_foure)
-print(he_result)
-print(he_resulttwo)
-print(he_resultthree)
-print(he_resultfour)
+print(compare_resultone)
+print(compare_resultotwo)
+print(compare_resultothree)
+print(comapre_resultofour)
