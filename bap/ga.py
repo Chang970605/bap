@@ -1,4 +1,5 @@
 import copy
+import random
 # 编写ga
 # 一些变量 B为船数, 
 def translate(DNA, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max):
@@ -47,7 +48,7 @@ def translate(DNA, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max):
                     tmp_leave = tmp_y + 1 + tmp_h
                     tmp_leave = into_shipchannel(tmp_leave, N, V, tide, tmp_index)
                     tmp_cost = (tmp_leave - tmp_a) + alpha * abs(tmp_x - tmp_p) 
-                    tmpp_ans.append([tmp_x, tmp_y + 1, tmp_l, tmp_h, tmp_leave, tmp_index, tmp_p])
+                    tmpp_ans.append([tmp_x, tmp_y + 1, tmp_l, tmp_h, tmp_leave, tmp_index, tmp_p, tmp_a])
                     tmpp_ans[0] += tmp_cost
                     tmp_beam_ans.append(tmpp_ans)
                 # 开始考虑tmp_p
@@ -72,7 +73,7 @@ def translate(DNA, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max):
                     tmp_leave = tmp_y + 1 + tmp_h
                     tmp_leave = into_shipchannel(tmp_leave, N, V, tide, tmp_index)
                     tmp_cost = tmp_leave - tmp_a
-                    ttmp_ans.append([tmp_p, tmp_y + 1, tmp_l, tmp_h, tmp_leave, tmp_index, tmp_p])
+                    ttmp_ans.append([tmp_p, tmp_y + 1, tmp_l, tmp_h, tmp_leave, tmp_index, tmp_p, tmp_a])
                     ttmp_ans[0] += tmp_cost
                     tmp_beam_ans.append(ttmp_ans)
             tmp_beam_ans.sort(key = lambda x : x[0])
@@ -252,31 +253,139 @@ def into_shipchannel(t, N, V, tide, i):
             else:
                 return (c + 1) * (2 * V) + 1
 
-def git_fitness(x):
+def get_fitness(x, alpha, default):
     '''
     适应度评估函数
     '''
-    pass
+    result = []
+    for i in x:
+        if i == []:
+            result.append(1 / default)
+        else:
+            i_tmp = i[0]
+            tmp = 0
+            for plan in i_tmp:
+                tmp += plan[4] - plan[7] + alpha * abs(plan[0] - plan[6])
+            result.append(1 / tmp)
+    return result
 
-def select(x):
+def select(ans, fitness, select_nums):
     '''
     选择函数
     '''
-    pass
+    fitness_sum = sum(fitness)
+    count = 0
+    tmp = []
+    pop = []
+    for i in range(len(fitness)):
+        count += fitness[i]
+        tmp.append(count / fitness_sum) # 累计概率
+    for _ in range(1, select_nums):
+        rand = random.random()
+        for j in range(len(fitness)):
+            if tmp[j] > rand:
+                break
+        pop.append(ans[j])
+    return pop
 
-def crossover(x):
+def crossover(ans, crossove_nums):
     '''
     交叉函数
+    这里的ans应该是已经选择过的
+    ans = [[B * 3],[]]
     '''
-    pass
+    pop = []
+    i = 0
+    B = ans[0] / 3
+    while i < crossove_nums:
+        father = ans[int((len(ans) + 1) * random.random())]
+        mother = ans[int((len(ans) + 1) * random.random())]
+        
+        posf = random.randint(0, (len(father) / 3) - 2)
+        poss = random.randint(0, (len(mother) / 3) - 1)
 
-def mutation(x):
+        if poss < posf:
+            posf, poss = poss, posf
+
+        # posf为第一个位置,poss为第二个
+        # 先搞第一个
+        tmp_crossover_boy = [0] * len(father) # 继承father的中间部分
+        tmp_crossover_girl = [0] * len(father) # 继承mother的中间部分
+        have_visited_boy = []
+        have_visited_girl = []
+        for pos in range(posf, poss + 1):
+            tmp_crossover_boy[pos] = father[pos] # 船的编号
+            have_visited_boy.append(father[pos])
+            tmp_crossover_boy[pos + B] = father[pos + B]
+            tmp_crossover_boy[pos + 2 * B] = father[pos + 2 * B]
+
+            tmp_crossover_girl[pos] = mother[pos] # 船的编号
+            have_visited_girl.append(mother[pos])
+            tmp_crossover_girl[pos + B] = mother[pos + B]
+            tmp_crossover_girl[pos + 2 * B] = mother[pos + 2 * B]
+
+        left_index = 0
+        k = 0 # boy中的外index
+        kk = 0 # mother中的index
+        while left_index < B - poss + posf - 1:
+            while k >= posf and k <= poss:
+                k += 1
+            while mother[kk] in have_visited_boy:
+                kk += 1
+            tmp_crossover_boy[k] = mother[kk]
+            tmp_crossover_boy[k + B] = mother[kk + B]
+            tmp_crossover_boy[k + 2 * B] = mother[kk + 2 * B]
+            kk += 1
+            k += 1
+            left_index += 1
+        
+        left_index = 0
+        k = 0 # boy中的外index
+        kk = 0 # mother中的index
+        while left_index < B - poss + posf - 1:
+            while k >= posf and k <= poss:
+                k += 1
+            while father[kk] in have_visited_girl:
+                kk += 1
+            tmp_crossover_girl[k] = father[kk]
+            tmp_crossover_girl[k + B] = father[kk + B]
+            tmp_crossover_girl[k + 2 * B] = father[kk + 2 * B]
+            kk += 1
+            k += 1
+            left_index += 1
+        
+        pop.append(tmp_crossover_boy)
+        i += 1
+        if i < crossove_nums:
+            pop.append(tmp_crossover_girl)
+            i += 1
+    
+    return pop
+
+def mutation(ans, l, q_min, q_max, mutation_rate, L, c):
     '''
     变异函数
+    输入为交叉之后的
     '''
-    pass
+    B = len(ans[0]) / 3
+    for i in range(len(ans)):
+        if random.random() > mutation_rate:
+            # 开始变异
+            tmp = ans[i]
+            
+            posf = random.randint(0, (len(tmp) / 3) - 2)
+            poss = random.randint(0, (len(tmp) / 3) - 1)
 
-def evolution(x):
-    '''
-    进化函数
-    '''
+            # 开始换船号
+            tmp[posf], tmp[poss] = tmp[poss], tmp[posf]
+
+            tmp_index = tmp[posf]
+            tmp[posf + B] = random.randint(1, L - l[tmp_index] + 1)
+            tmp[posf + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]), int(c[tmp_index]/q_min[tmp_index]) + 1)
+
+            tmp_index = tmp[poss]
+            tmp[poss + B] = random.randint(1, L - l[tmp_index] + 1)
+            tmp[poss + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]), int(c[tmp_index]/q_min[tmp_index]) + 1)
+            ans[i] = tmp
+
+    return ans
