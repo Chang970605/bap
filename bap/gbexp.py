@@ -268,7 +268,7 @@ if __name__ == "__main__":
     variables['c'] = c
     variables['tide'] = tide
     variables['free'] = free
-    variables['alpha'] = 0.1
+    variables['alpha'] = 3
     variables['p'] = p
     result = gb_solver(variables)
     print(result)

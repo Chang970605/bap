@@ -1,5 +1,6 @@
 import copy
 import random
+import numpy as np
 # 编写ga
 # 一些变量 B为船数, 
 def translate(DNA, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max):
@@ -78,8 +79,12 @@ def translate(DNA, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max):
                     tmp_beam_ans.append(ttmp_ans)
             tmp_beam_ans.sort(key = lambda x : x[0])
             beam_ans = tmp_beam_ans[:10]
+        if len(beam_ans) == 0:
+            result.append([])
+            continue 
         tmp_result = beam_ans[0]
         if len(tmp_result) != B + 1:
+            result.append([])
             continue
         # result.append(tmp_result)  这块先不存，桥机分配成功了再存
 
@@ -296,10 +301,10 @@ def crossover(ans, crossove_nums):
     '''
     pop = []
     i = 0
-    B = ans[0] / 3
+    B = int(len(ans[0]) / 3)
     while i < crossove_nums:
-        father = ans[int((len(ans) + 1) * random.random())]
-        mother = ans[int((len(ans) + 1) * random.random())]
+        father = ans[int((len(ans)) * random.random())]
+        mother = ans[int((len(ans)) * random.random())]
         
         posf = random.randint(0, (len(father) / 3) - 2)
         poss = random.randint(0, (len(mother) / 3) - 1)
@@ -367,7 +372,7 @@ def mutation(ans, l, q_min, q_max, mutation_rate, L, c):
     变异函数
     输入为交叉之后的
     '''
-    B = len(ans[0]) / 3
+    B = int(len(ans[0]) / 3)
     for i in range(len(ans)):
         if random.random() > mutation_rate:
             # 开始变异
@@ -389,3 +394,20 @@ def mutation(ans, l, q_min, q_max, mutation_rate, L, c):
             ans[i] = tmp
 
     return ans
+
+def init_pop(pop_nums, B, L, c, q_max, q_min, l):
+    """
+    生成初始解
+    """
+    pop = []
+    for _ in range(pop_nums):
+        tmp = [0] *  (3 * B)
+        a = list(np.random.permutation(B))
+        for i in range(B):
+            tmp_index = a[i] + 1
+            tmp[i] = tmp_index
+            tmp[i + B] = random.randint(1, L - l[tmp_index] + 1)
+            tmp[i + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]), int(c[tmp_index]/q_min[tmp_index]) + 1)
+        
+        pop.append(tmp)
+    return pop
