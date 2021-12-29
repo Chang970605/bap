@@ -143,10 +143,10 @@ def gb_solver(variables_dict):
 
         for i in item_list:
             m.addConstr(sum(sum(hiu[q, i, t] for q in range(1, Q + 1)) for t in range(1, 2 * N * V + 1)) == c[i], "h1" + str(i))
-            for t in range(1, 2 * N * V + 1):
-                for tt in range(1, 2 * N * V + 1):
-                    if t != tt:
-                        m.addConstr(sum(hiu[q, i, t] for q in range(1, Q + 1)) - sum(hiu[q, i, tt] for q in range(1, Q + 1)) >= (-1) * M * (2 - ceta[i, t] - ceta[i, tt]) - 1, "h555" + str(t) + str(i) + str(tt))
+            # for t in range(1, 2 * N * V + 1):
+            #     for tt in range(1, 2 * N * V + 1):
+            #         if t != tt:
+            #             m.addConstr(sum(hiu[q, i, t] for q in range(1, Q + 1)) - sum(hiu[q, i, tt] for q in range(1, Q + 1)) >= (-1) * M * (2 - ceta[i, t] - ceta[i, tt]) - 1, "h555" + str(t) + str(i) + str(tt))
 
         for i in item_list:
             m.addConstr(b[i] <= L - l[i] + 1, "x0" + str(i))
@@ -220,6 +220,53 @@ def sketch_map(W, w, h, x, y, p, name):
     plt.savefig(name + ".png")
 
 if __name__ == "__main__":
+    # N = 4
+    # V = 6
+    # alpha = 0
+    l = {}     # 箱子宽
+    c = {}     # 箱子高
+    p = {}
+    l[1], c[1] = 6, 11
+    l[2], c[2] = 6, 12
+    l[3], c[3] = 4, 12
+    l[4], c[4] = 5, 14
+    l[5], c[5] = 5, 16
+    l[6], c[6] = 3, 4
+    l[7], c[7] = 3, 5
+    l[8], c[8] = 2, 6 
+    l[9], c[9] = 4, 7
+    l[10], c[10] = 4, 8
+    l[11], c[11] = 5, 6
+    # l[8], c[8] = 2, 6
+    # l[9], c[9] = 4, 7
+    # l[10], c[10] = 5, 8
+    # l[11], c[11] = 5, 6
+    tide = [1, 3, 5, 7, 9, 11]
+    free = [2, 4, 6, 8, 10]
+    a = {}
+    a[1] = 1
+    a[2] = 5
+    a[3] = 8
+    a[4] = 12
+    a[5] = 14
+    a[6] = 16
+    a[7] = 17
+    a[8] = 19
+    a[9] = 21
+    a[10] = 25
+    a[11] = 28
+    q_max = {}
+    q_min = {}
+    p = {}
+    for i in range(1, 12):
+        q_max[i] = 6
+        q_min[i] = 1
+        p[i] = 3
+    B = 11
+    L = 10
+    Q = 7
+
+    '''
     l = {}     # 箱子宽
     c = {}     # 箱子高
     p = {}     # 箱子偏好位置
@@ -255,11 +302,12 @@ if __name__ == "__main__":
         q_max[i] = 4
         q_min[i] = 1
         p[i] = 1
+    '''
     variables = {}
-    variables['B'] = 7
-    variables['L'] = 8
+    variables['B'] = 11
+    variables['L'] = 10
     variables['Q'] = 7
-    variables['N'] = 3
+    variables['N'] = 4
     variables['V'] = 6
     variables['q_max'] = q_max
     variables['q_min'] = q_min
@@ -268,7 +316,7 @@ if __name__ == "__main__":
     variables['c'] = c
     variables['tide'] = tide
     variables['free'] = free
-    variables['alpha'] = 3
+    variables['alpha'] = 0
     variables['p'] = p
     result = gb_solver(variables)
     print(result)

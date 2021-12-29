@@ -386,11 +386,11 @@ def mutation(ans, l, q_min, q_max, mutation_rate, L, c):
 
             tmp_index = tmp[posf]
             tmp[posf + B] = random.randint(1, L - l[tmp_index] + 1)
-            tmp[posf + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]), int(c[tmp_index]/q_min[tmp_index]) + 1)
+            tmp[posf + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]) + 1, int(c[tmp_index]/q_min[tmp_index]) + 1)
 
             tmp_index = tmp[poss]
             tmp[poss + B] = random.randint(1, L - l[tmp_index] + 1)
-            tmp[poss + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]), int(c[tmp_index]/q_min[tmp_index]) + 1)
+            tmp[poss + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]) + 1, int(c[tmp_index]/q_min[tmp_index]) + 1)
             ans[i] = tmp
 
     return ans
@@ -407,7 +407,56 @@ def init_pop(pop_nums, B, L, c, q_max, q_min, l):
             tmp_index = a[i] + 1
             tmp[i] = tmp_index
             tmp[i + B] = random.randint(1, L - l[tmp_index] + 1)
-            tmp[i + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]), int(c[tmp_index]/q_min[tmp_index]) + 1)
+            tmp[i + 2 * B] = random.randint(int(c[tmp_index]/q_max[tmp_index]) + 1, int(c[tmp_index]/q_min[tmp_index]) + 1)
         
         pop.append(tmp)
     return pop
+
+def ga_algorithm(variables_dict):
+    '''
+    输入为字典，方便统一
+    '''
+    B = variables_dict['B']      # 箱子数目
+    N = variables_dict['N']    #一共多少个高水位
+    V = variables_dict['V']    # 每一个高水位持续的时间
+    L = variables_dict['L']     # 容器宽
+    Q = variables_dict['Q']     # 容器的总数目
+    # M = 1000  很大的数 不能太大 否则会出精度问题
+    alpha = variables_dict['alpha']  # 惩罚系数
+    l = variables_dict['l']     # 箱子宽
+    tide = variables_dict['tide'] # 受潮汐影响的 list
+    # free = variables_dict['free'] # 不受潮汐影响的下标 list
+    c = variables_dict['c']     # 每个船的工作量
+    q_max = variables_dict['q_max'] # 每个船的最多工作桥机数
+    q_min = variables_dict['q_min'] # 每个船的最少工作桥机数
+    p = variables_dict['p']     # 箱子偏好位置
+    a = variables_dict['a']  # dict 船的到达时间
+    pop = init_pop(100, B, L, c, q_max, q_min, l)
+    best_ans = []
+    default = 0
+    best_pop = []
+    for i in range(1, B + 1):
+        default += (2 * N * V - a[i])
+        default += (alpha * max(abs(p[i] - 1), abs(L - p[i])))
+    best_obj = default
+    for i in range(500):
+        decoding_pop = translate(pop, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max)
+        decoding_fitness = get_fitness(decoding_pop, alpha, default)
+        best_index = decoding_fitness.index(max(decoding_fitness))
+        if 1 / decoding_fitness[best_index] < best_obj:
+            best_obj = (1 / decoding_fitness[best_index])
+            best_ans = decoding_pop[best_index]
+            best_pop = pop[best_index]
+        if i % 100 == 0:
+            print('best obj is ' + str(best_obj))
+            # print(best_ans)
+            # print(best_pop)
+            # print('-----------------------------------------------------------------')
+        pop_select = select(pop, decoding_fitness, 50)
+        pop_crossover = crossover(pop_select, 50)
+        pop_mutation = mutation(pop_crossover, l, q_min, q_max, 0.5, L, c)
+        pop = pop_select + pop_mutation
+    p_count = 0
+    for i in best_ans[0]:
+        p_count += abs(i[0] - i[6])
+    return (best_obj, p_count)
