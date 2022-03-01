@@ -68,7 +68,8 @@ def gb_solver(variables_dict):
             m.addConstr(px[i] == x[i] - p[i], "px0" + str(i))
             m.addConstr(yh[i] == y[i] + h[i], "x0" + str(i))
         
-        m.Params.TimeLimit = 10
+        m.setParam("outputflag",0)
+        m.Params.TimeLimit = 180
         m.update()
         m.write('ssp.lp')
         # m.setParam("MIPGap", 1)
@@ -166,10 +167,33 @@ if __name__ == "__main__":
     # p_ans = {}
     for j in range(1, 11):
         p[j] = random.randint(0, 20 - w[j])
-    variables['alpha'] = 0
+    p = {1: 10, 2: 5, 3: 8, 4: 2, 5: 10, 6: 8, 7: 6, 8: 2, 9: 8, 10: 10}
+    variables['alpha'] = 3
     variables['p'] = p
-    # result = gb_solver(variables)
-    # print(result)
+    result = gb_solver(variables)
+    print(result)
+
+    '''
+    # 图2.4
+    time = []
+    punish = []
+    ans = []
+    time = []
+    i = 0
+    while i <= 4:
+        print('--------------------i=' + str(i) + '---------------------')
+        variables['alpha'] = i
+        result = gb_solver(variables)
+        punish.append(result['pcount'])
+        ans.append(result['Obj'])
+        i += 0.05
+        time.append(result['Runtime'])
+    print(ans)
+    print(punish)
+    print(p)
+    print(time)
+    '''
+    '''
     ans = {}
     p_ans = {}
     for k in range(1):
@@ -186,7 +210,7 @@ if __name__ == "__main__":
         pp = p.copy()
         p_ans[k] = pp
     print(ans)
-    '''
+    
     with open('exp1_1.txt', 'w') as f:
         for key, value in ans.items():
             f.write(str(key))

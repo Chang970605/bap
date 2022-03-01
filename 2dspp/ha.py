@@ -1,4 +1,6 @@
 import copy
+import math
+import time
 
 def ffd(w, h, W, p):
     """
@@ -27,7 +29,7 @@ def ffd(w, h, W, p):
                 tmp_x = j[0]
             elif abs(tmp_x - p[i]) > abs(j[1] - p[i]):
                 tmp_x = j[1]
-        tmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p]
+        tmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p, i]
         for k in range(len(ans)):
             if ans[k][1] + ans[k][3] > tmp_y + tmp_h:
                 ans = ans[:k] + [tmp_ans] + ans[k:]
@@ -64,7 +66,7 @@ def ffdtwo(w, h, W, p):
                 tmp_x = j[0]
             elif abs(tmp_x - p[i]) > abs(j[1] - p[i]):
                 tmp_x = j[1]
-        tmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p]
+        tmp_ans = [tmp_x, tmp_y, tmp_w, tmp_h, tmp_p, i]
         for k in range(len(ans)):
             if ans[k][1] + ans[k][3] > tmp_y + tmp_h:
                 ans = ans[:k] + [tmp_ans] + ans[k:]
@@ -224,3 +226,149 @@ def merge(intervals):
             tmp[1] = max(tmp[1], i[1])
     res.append(tmp)
     return res   
+
+def ffd_withswap(w,h,W,p,alpha):
+    # 先做一遍逆序
+    start_time = time.time()
+    ans = math.inf
+    best_result = []
+    best_order_w = copy.deepcopy(w)
+    best_order_h = copy.deepcopy(h)
+    best_order_p = copy.deepcopy(p)
+    n = len(w)
+    for i in range(n):
+        for j in range(n):
+            h[i], h[j] = h[j], h[i]
+            w[i], w[j] = w[j], w[i]
+            p[i], p[j] = p[j], p[i]
+            tmp_result = ffd(w,h,W,p)
+            tmp_ans = tmp_result[-1][1] + tmp_result[-1][3]
+            for k in tmp_result:
+                tmp_ans += alpha * abs(k[0] - k[4])
+            ans = min(tmp_ans, ans)
+            if ans == tmp_ans:
+                best_result = copy.deepcopy(tmp_result)
+                best_order_w = copy.deepcopy(w)
+                best_order_h = copy.deepcopy(h)
+                best_order_p = copy.deepcopy(p)
+        w = copy.deepcopy(best_order_w)
+        h = copy.deepcopy(best_order_h)
+        p = copy.deepcopy(best_order_p)
+    # print(ans)
+    #if alpha != 0:
+    #    print((ans - (best_result[-1][1] + best_result[-1][3]))/alpha)
+    #if alpha == 0:
+    #    punish = 0
+    #    for i in best_result:
+    #        punish += abs(i[0] - i[4])
+    #    print(punish)
+    end_time = time.time()
+    return (ans, end_time - start_time)
+
+def ffdtwo_withswap(w,h,W,p,alpha):
+    # 先做一遍逆序
+    start_time = time.time()
+    ans = math.inf
+    best_result = []
+    best_order_w = copy.deepcopy(w)
+    best_order_h = copy.deepcopy(h)
+    best_order_p = copy.deepcopy(p)
+    n = len(w)
+    for i in range(n):
+        for j in range(n):
+            h[i], h[j] = h[j], h[i]
+            w[i], w[j] = w[j], w[i]
+            p[i], p[j] = p[j], p[i]
+            tmp_result = ffdtwo(w,h,W,p)
+            tmp_ans = tmp_result[-1][1] + tmp_result[-1][3]
+            for k in tmp_result:
+                tmp_ans += alpha * abs(k[0] - k[4])
+            ans = min(tmp_ans, ans)
+            if ans == tmp_ans:
+                best_result = copy.deepcopy(tmp_result)
+                best_order_w = copy.deepcopy(w)
+                best_order_h = copy.deepcopy(h)
+                best_order_p = copy.deepcopy(p)
+        w = copy.deepcopy(best_order_w)
+        h = copy.deepcopy(best_order_h)
+        p = copy.deepcopy(best_order_p)
+    # print(ans)
+    # if alpha != 0:
+    #     print((ans - (best_result[-1][1] + best_result[-1][3]))/alpha)
+    # if alpha == 0:
+    #     punish = 0
+    #     for i in best_result:
+    #         punish += abs(i[0] - i[4])
+    #     print(punish)
+    end_time = time.time()
+    return (ans, end_time - start_time)  
+
+def ffdthree_withswap(w,h,W,p,alpha):
+    # 先做一遍逆序
+    ans = math.inf
+    best_result = []
+    best_order_w = copy.deepcopy(w)
+    best_order_h = copy.deepcopy(h)
+    best_order_p = copy.deepcopy(p)
+    n = len(w)
+    for i in range(n):
+        for j in range(n):
+            h[i], h[j] = h[j], h[i]
+            w[i], w[j] = w[j], w[i]
+            p[i], p[j] = p[j], p[i]
+            tmp_result = ffdthree(w,h,W,p)
+            tmp_ans = tmp_result[-1][1] + tmp_result[-1][3]
+            for k in tmp_result:
+                tmp_ans += alpha * abs(k[0] - k[4])
+            ans = min(tmp_ans, ans)
+            if ans == tmp_ans:
+                best_result = copy.deepcopy(tmp_result)
+                best_order_w = copy.deepcopy(w)
+                best_order_h = copy.deepcopy(h)
+                best_order_p = copy.deepcopy(p)
+        w = copy.deepcopy(best_order_w)
+        h = copy.deepcopy(best_order_h)
+        p = copy.deepcopy(best_order_p)
+    # print(ans)
+    # if alpha != 0:
+    #     print((ans - (best_result[-1][1] + best_result[-1][3]))/alpha)
+    # if alpha == 0:
+    #    punish = 0
+    #     for i in best_result:
+    #         punish += abs(i[0] - i[4])
+    #     print(punish)
+    return ans
+
+def ffd_beamsearch_withswap(w,h,W,p,alpha):
+    start_time = time.time()
+    # 先做一遍逆序
+    ans = math.inf
+    best_result = []
+    best_order_w = copy.deepcopy(w)
+    best_order_h = copy.deepcopy(h)
+    best_order_p = copy.deepcopy(p)
+    n = len(w)
+    for i in range(n):
+        for j in range(n):
+            h[i], h[j] = h[j], h[i]
+            w[i], w[j] = w[j], w[i]
+            p[i], p[j] = p[j], p[i]
+            tmp_result = ffd_beamsearch(w,h,W,p,alpha)
+            tmp_ans = tmp_result[-1][1] + tmp_result[-1][3]
+            tmp_ans += alpha * tmp_result[0][5]
+            ans = min(tmp_ans, ans)
+            if ans == tmp_ans:
+                best_result = copy.deepcopy(tmp_result)
+                best_order_w = copy.deepcopy(w)
+                best_order_h = copy.deepcopy(h)
+                best_order_p = copy.deepcopy(p)
+        w = copy.deepcopy(best_order_w)
+        h = copy.deepcopy(best_order_h)
+        p = copy.deepcopy(best_order_p)
+    # print(ans)
+    # if alpha != 0:
+    #     print((ans - (best_result[-1][1] + best_result[-1][3]))/alpha)
+    # elif alpha == 0:
+    #     print(best_result[0][5])
+    end_time = time.time()
+    return (ans, end_time - start_time)

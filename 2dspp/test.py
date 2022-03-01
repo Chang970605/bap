@@ -2,6 +2,14 @@ import ha
 import random
 import gbexp
 import time
+import copy
+def text_save(filename, data):#filename为写入CSV文件的路径，data为要写入数据列表.
+    with open(filename, 'w') as f:
+        for key, value in data.items():
+            f.write(str(key))
+            f.write(': ')
+            f.write(str(value))
+            f.write('\n')
 # x,y,w,h
 # p = [[0, 0, 0, 0],[0.3,0,0.3,4],[0.7,0,0.3,5],[0,0,0.3,6],[0.3,4,0.3,4],[0.75,5,0.25,4],[0,6,0.25,4]]
 # w = 0.3
@@ -9,6 +17,134 @@ import time
 # W = 1
 # print(ha.find_position(p,w,h,W))
 beixuan = [0,0.1,0.2,0,3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4,4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,5]
+al_exp = [0, 0.1, 0.2, 0.3, 0.4, 0.5,1,1.5,2,3]
+resone = {}
+restwo = {}
+resthree = {}
+resgurobi = {}
+restimeone = {}
+restimetwo = {}
+restimethree = {}
+restimegurobi = {}
+for alp in al_exp:
+    resone[alp] = []
+    restwo[alp] = []
+    resthree[alp] = []
+    resgurobi[alp] = []
+    restimeone[alp] = []
+    restimetwo[alp] = []
+    restimethree[alp] = []
+    restimegurobi[alp] = []
+for n in [50]:
+    print('------------------------------n=' + str(n))
+    for k in range(10): #试验次数
+        print('-----------------------' + str(n) + '第几次' + str(k))
+        w = {}
+        h = {}
+        p = {}
+        n_small = n // 3
+        n_mid = n //3
+        n_large = n - n_small - n_mid
+        tmp_w = []
+        tmp_h = []
+        for i in range(1, n_small + 1):
+            tmp_w.append(random.randint(1, 3))
+            tmp_h.append(random.randint(3, 6))
+        tmp_w.sort()
+        tmp_h.sort()
+        #ww = ww[::-1]
+        #hh = hh[::-1]
+        for i in range(1, n_small + 1):
+            w[i] = tmp_w[i - 1]
+            h[i] = tmp_h[i - 1]
+            p[i] = random.randint(0, 20 - w[i])
+        tmp_w = []
+        tmp_h = []
+        for i in range(n_small + 1, n_small + n_mid + 1):
+            tmp_w.append(random.randint(4, 6))
+            tmp_h.append(random.randint(7, 10))
+        tmp_w.sort()
+        tmp_h.sort()
+        #ww = ww[::-1]
+        #hh = hh[::-1]
+        for i in range(n_small + 1, n_small + n_mid + 1):
+            w[i] = tmp_w[i - n_small - 1]
+            h[i] = tmp_h[i - n_small - 1]
+            p[i] = random.randint(0, 20 - w[i])
+        tmp_w = []
+        tmp_h = []
+        for i in range(n_small + n_mid + 1, n + 1):
+            tmp_w.append(random.randint(7, 9))
+            tmp_h.append(random.randint(11, 14))
+        tmp_w.sort()
+        tmp_h.sort()
+        #ww = ww[::-1]
+        #hh = hh[::-1]
+        for i in range(n_small + n_mid + 1, n + 1):
+            w[i] = tmp_w[i - n_small - n_mid - 1]
+            h[i] = tmp_h[i - n_small - n_mid - 1]
+            p[i] = random.randint(0, 20 - w[i])
+        ww = list(w.values())
+        hh = list(h.values())
+        pp = list(p.values())
+        ww = ww[::-1]
+        pp = pp[::-1]
+        hh = hh[::-1]
+        variables = {}
+        variables['N'] = n
+        variables['W'] = 20
+        variables['w'] = w
+        variables['h'] = h
+        variables['p'] = p
+        for alp in al_exp:
+            print('-----------' + str(alp))
+            variables['alpha'] = alp
+            result = gbexp.gb_solver(variables)
+            gurobi_ans = result['Obj']
+            restimegurobi[alp].append(result['Runtime'])
+            resgurobi[alp].append(gurobi_ans)
+            # print(restimegurobi)
+            result_one, time_one = ha.ffd_withswap(copy.deepcopy(ww), copy.deepcopy(hh), 20,copy.deepcopy(pp), alp)
+            result_two, time_two = ha.ffdtwo_withswap(copy.deepcopy(ww), copy.deepcopy(hh), 20,copy.deepcopy(pp), alp)
+            result_three, time_three = ha.ffd_beamsearch_withswap(copy.deepcopy(ww), copy.deepcopy(hh), 20,copy.deepcopy(pp), alp)
+            resone[alp].append(result_one)
+            restwo[alp].append(result_two)
+            resthree[alp].append(result_three)
+            restimeone[alp].append(time_one)
+            restimetwo[alp].append(time_two)
+            restimethree[alp].append(time_three)
+            
+            print(resgurobi)
+            print(restimegurobi)
+            print(resone)
+            print(restimeone)
+            print(restwo)
+            print(restimetwo)
+            print(resthree)
+            print(restimethree)
+# print(resone)
+# print(restwo)
+# print(restimeone)
+# print(restimetwo)
+print(restimegurobi)
+print(resgurobi)
+print(resone)
+print(restimeone)
+print(restwo)
+print(restimetwo)
+print(resthree)
+print(restimethree)
+
+text_save('resgurobi50.txt',resgurobi)
+text_save('restimegurobi50.txt',restimegurobi)
+text_save('resone50.txt',resone)
+text_save('restimeone50.txt',restimeone)
+text_save('restwo50.txt',restwo)
+text_save('restimetwo50.txt',restimetwo)
+text_save('resthree50.txt',resthree)
+text_save('restimethree50.txt',restimethree)
+
+'''
 compare_resultone = {}
 compare_resultotwo = {}
 compare_resultothree = {}
@@ -22,7 +158,7 @@ for kk in range(1000):
     w = {}     # 箱子宽
     h = {}     # 箱子高
     p = {}     # 箱子偏好位置
-    '''
+    
     w[1], h[1] = 2, 5
     w[2], h[2] = 3, 5
     w[3], h[3] = 3, 6
@@ -33,7 +169,7 @@ for kk in range(1000):
     w[8], h[8] = 7, 12
     w[9], h[9] = 8, 12
     w[10], h[10] = 9, 14
-    '''
+    
     n = 20
     ww = []
     hh = []
@@ -90,7 +226,7 @@ for kk in range(1000):
             compare_resultotwo[alp] += 1
         if tmp_four == tmpppp:
             comapre_resultofour[alp] += 1
-    '''
+    
     for al in beixuan:
         variables['alpha'] = al
         he_objone = 0
@@ -113,7 +249,8 @@ for kk in range(1000):
             compare_resultotwo[al] += 1
         else:
             compare_resultothree[al] += 1
-        
+    '''
+
     #he_end = time.time()
     
     # he_time = he_end - he_strat
@@ -126,12 +263,14 @@ for kk in range(1000):
     #print(gb_result['Runtime'])
     #compare_result.append([he_obj, gb_result['Obj']])
     #compare_time.append([he_time, gb_result['Runtime']])
-    '''
+    
 #for i in beixuan:
 #    compare_resultone[i] /= 10
 #    compare_resultotwo[i] /= 10
 #    compare_resultothree[i] /= 10
+'''
 print(compare_resultone)
 print(compare_resultotwo)
 print(compare_resultothree)
 print(comapre_resultofour)
+'''

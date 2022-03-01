@@ -1,6 +1,7 @@
 import copy
 import random
 import numpy as np
+import time
 # 编写ga
 # 一些变量 B为船数, 
 def translate(DNA, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max):
@@ -78,7 +79,7 @@ def translate(DNA, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max):
                     ttmp_ans[0] += tmp_cost
                     tmp_beam_ans.append(ttmp_ans)
             tmp_beam_ans.sort(key = lambda x : x[0])
-            beam_ans = tmp_beam_ans[:10]
+            beam_ans = tmp_beam_ans[:1] # k
         if len(beam_ans) == 0:
             result.append([])
             continue 
@@ -431,6 +432,7 @@ def ga_algorithm(variables_dict):
     q_min = variables_dict['q_min'] # 每个船的最少工作桥机数
     p = variables_dict['p']     # 箱子偏好位置
     a = variables_dict['a']  # dict 船的到达时间
+    start = time.time()
     pop = init_pop(100, B, L, c, q_max, q_min, l)
     best_ans = []
     default = 0
@@ -439,7 +441,8 @@ def ga_algorithm(variables_dict):
         default += (2 * N * V - a[i])
         default += (alpha * max(abs(p[i] - 1), abs(L - p[i])))
     best_obj = default
-    for i in range(500):
+    break_obj = 0
+    for i in range(1000):
         decoding_pop = translate(pop, N, V, alpha, l, L, tide, B, a, p, c, Q, q_min, q_max)
         decoding_fitness = get_fitness(decoding_pop, alpha, default)
         best_index = decoding_fitness.index(max(decoding_fitness))
@@ -447,7 +450,13 @@ def ga_algorithm(variables_dict):
             best_obj = (1 / decoding_fitness[best_index])
             best_ans = decoding_pop[best_index]
             best_pop = pop[best_index]
-        if i % 100 == 0:
+        if i % 100 == 0 and best_obj == break_obj:
+            print('break best obj is ' + str(best_obj))
+            break
+        elif i % 100 == 0 and best_obj != break_obj:
+            # print(best_obj)
+            # print(break_obj)
+            break_obj = best_obj
             print('best obj is ' + str(best_obj))
             # print(best_ans)
             # print(best_pop)
@@ -456,7 +465,8 @@ def ga_algorithm(variables_dict):
         pop_crossover = crossover(pop_select, 50)
         pop_mutation = mutation(pop_crossover, l, q_min, q_max, 0.5, L, c)
         pop = pop_select + pop_mutation
+    end_time = time.time()
     p_count = 0
     for i in best_ans[0]:
         p_count += abs(i[0] - i[6])
-    return (best_obj, p_count)
+    return (best_obj, end_time - start)

@@ -156,7 +156,7 @@ def gb_solver(variables_dict):
             m.addConstr(to[i] <= 2 * N * V, "t0" + str(i))
             m.addConstr(px[i] == b[i] - p[i], "px0" + str(i))
             # m.addConstr(yh[i] == y[i] + h[i], "x0" + str(i))
-        
+        m.setParam("outputflag",0)
         m.update()
         m.write('ssp.lp')
         # m.setParam("MIPGap", 1)
@@ -170,8 +170,8 @@ def gb_solver(variables_dict):
         result['Runtime'] = m.Runtime
         
         pcount = 0
-        for i in range(1, N + 1):
-            pcount += abs(result['b[' + str(i) + ']'] - p[i])
+        for i in range(1, B + 1):
+            pcount += result['pxf[' + str(i) + ']']
         result['pcount'] = pcount
         return result
 
