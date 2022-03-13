@@ -72,7 +72,7 @@ def gb_solver(variables_dict):
         m.Params.TimeLimit = 180
         m.update()
         m.write('ssp.lp')
-        # m.setParam("MIPGap", 1)
+        # m.setParam("MIPGap", 10**(-1))
         # 开始优化
         m.optimize()
         result =  {}  #保存结果

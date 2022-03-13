@@ -21,21 +21,26 @@ al_exp = [0, 0.1, 0.2, 0.3, 0.4, 0.5,1,1.5,2,3]
 resone = {}
 restwo = {}
 resthree = {}
+resfour = {}
 resgurobi = {}
 restimeone = {}
 restimetwo = {}
 restimethree = {}
+restimefour = {}
 restimegurobi = {}
 for alp in al_exp:
     resone[alp] = []
     restwo[alp] = []
     resthree[alp] = []
+    resfour[alp] = []
     resgurobi[alp] = []
     restimeone[alp] = []
     restimetwo[alp] = []
     restimethree[alp] = []
+    restimefour[alp] = []
     restimegurobi[alp] = []
-for n in [50]:
+
+for n in [30]:
     print('------------------------------n=' + str(n))
     for k in range(10): #试验次数
         print('-----------------------' + str(n) + '第几次' + str(k))
@@ -104,28 +109,35 @@ for n in [50]:
             restimegurobi[alp].append(result['Runtime'])
             resgurobi[alp].append(gurobi_ans)
             # print(restimegurobi)
+            
             result_one, time_one = ha.ffd_withswap(copy.deepcopy(ww), copy.deepcopy(hh), 20,copy.deepcopy(pp), alp)
             result_two, time_two = ha.ffdtwo_withswap(copy.deepcopy(ww), copy.deepcopy(hh), 20,copy.deepcopy(pp), alp)
             result_three, time_three = ha.ffd_beamsearch_withswap(copy.deepcopy(ww), copy.deepcopy(hh), 20,copy.deepcopy(pp), alp)
+            result_four, time_four = ha.ffd_beamsearch_withswap_new(copy.deepcopy(ww), copy.deepcopy(hh), 20,copy.deepcopy(pp), alp)
             resone[alp].append(result_one)
             restwo[alp].append(result_two)
             resthree[alp].append(result_three)
+            resfour[alp].append(result_four)
             restimeone[alp].append(time_one)
             restimetwo[alp].append(time_two)
             restimethree[alp].append(time_three)
-            
+            restimefour[alp].append(time_four)
             print(resgurobi)
             print(restimegurobi)
+            
             print(resone)
             print(restimeone)
             print(restwo)
             print(restimetwo)
             print(resthree)
             print(restimethree)
+            print(resfour)
+            print(restimefour)
 # print(resone)
 # print(restwo)
 # print(restimeone)
 # print(restimetwo)
+print('--------------结果----------------')
 print(restimegurobi)
 print(resgurobi)
 print(resone)
@@ -134,15 +146,18 @@ print(restwo)
 print(restimetwo)
 print(resthree)
 print(restimethree)
-
-text_save('resgurobi50.txt',resgurobi)
-text_save('restimegurobi50.txt',restimegurobi)
-text_save('resone50.txt',resone)
-text_save('restimeone50.txt',restimeone)
-text_save('restwo50.txt',restwo)
-text_save('restimetwo50.txt',restimetwo)
-text_save('resthree50.txt',resthree)
-text_save('restimethree50.txt',restimethree)
+print(resfour)
+print(restimefour)
+text_save('resgurobinew_10.txt',resgurobi)
+text_save('restimegurobinew_10.txt',restimegurobi)
+text_save('resonenew_10.txt',resone)
+text_save('restimeonenew_10.txt',restimeone)
+text_save('restwonew_10.txt',restwo)
+text_save('restimetwonew_10.txt',restimetwo)
+text_save('resthreenew_10.txt',resthree)
+text_save('restimethreenew_10.txt',restimethree)
+text_save('resfournew_10.txt',resfour)
+text_save('restimefournew_10.txt',restimefour)
 
 '''
 compare_resultone = {}
