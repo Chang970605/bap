@@ -16,7 +16,7 @@ def text_save(filename, data):#filename为写入CSV文件的路径，data为要�
 # h = 3
 # W = 1
 # print(ha.find_position(p,w,h,W))
-beixuan = [0,0.1,0.2,0,3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4,4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,5]
+beixuan = [0,0.1,0.2,0,3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3]
 al_exp = [0, 0.1, 0.2, 0.3, 0.4, 0.5,1,1.5,2,3]
 resone = {}
 restwo = {}
@@ -28,7 +28,7 @@ restimetwo = {}
 restimethree = {}
 restimefour = {}
 restimegurobi = {}
-for alp in al_exp:
+for alp in beixuan:
     resone[alp] = []
     restwo[alp] = []
     resthree[alp] = []
@@ -40,7 +40,7 @@ for alp in al_exp:
     restimefour[alp] = []
     restimegurobi[alp] = []
 
-for n in [30]:
+for n in [15]:
     print('------------------------------n=' + str(n))
     for k in range(10): #试验次数
         print('-----------------------' + str(n) + '第几次' + str(k))
@@ -101,7 +101,7 @@ for n in [30]:
         variables['w'] = w
         variables['h'] = h
         variables['p'] = p
-        for alp in al_exp:
+        for alp in beixuan:
             print('-----------' + str(alp))
             variables['alpha'] = alp
             result = gbexp.gb_solver(variables)
@@ -148,16 +148,16 @@ print(resthree)
 print(restimethree)
 print(resfour)
 print(restimefour)
-text_save('resgurobinew_10.txt',resgurobi)
-text_save('restimegurobinew_10.txt',restimegurobi)
-text_save('resonenew_10.txt',resone)
-text_save('restimeonenew_10.txt',restimeone)
-text_save('restwonew_10.txt',restwo)
-text_save('restimetwonew_10.txt',restimetwo)
-text_save('resthreenew_10.txt',resthree)
-text_save('restimethreenew_10.txt',restimethree)
-text_save('resfournew_10.txt',resfour)
-text_save('restimefournew_10.txt',restimefour)
+text_save('resgurobinew_4050.txt',resgurobi)
+text_save('restimegurobinew_4050.txt',restimegurobi)
+text_save('resonenew_4050.txt',resone)
+text_save('restimeonenew_4050.txt',restimeone)
+text_save('restwonew_4050.txt',restwo)
+text_save('restimetwonew_4050.txt',restimetwo)
+text_save('resthreenew_4050.txt',resthree)
+text_save('restimethreenew_4050.txt',restimethree)
+text_save('resfournew_4050.txt',resfour)
+text_save('restimefournew_4050.txt',restimefour)
 
 '''
 compare_resultone = {}
